@@ -1,0 +1,22 @@
+packages:
+  - .
+
+engineStrict: true
+useNodeVersion: 24.21.0
+saveExact: true
+strictPeerDependencies: true
+packageManagerStrict: true
+packageManagerStrictVersion: true
+managePackageManagerVersions: true
+minimumReleaseAge: 1440
+# Locally patched and regression-tested; see SECURITY.md. No other advisory is exempted.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-vfj7-8cjw-p6xm
+onlyBuiltDependencies:
+  - '@tailwindcss/oxide'
+  - esbuild
+  - unrs-resolver
+patchedDependencies:
+  braces@3.0.3: patches/braces@3.0.3.patch
+strictDepBuilds: true

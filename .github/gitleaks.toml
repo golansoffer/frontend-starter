@@ -1,0 +1,11 @@
+title = "Frontend starter secret scanning"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Installed packages and generated local output"
+paths = [
+  '''(^|/)(node_modules|dist|coverage|playwright-report|test-results|\.tools|\.tanstack)/''',
+  '''(^|/)pnpm-lock\.yaml$''',
+]

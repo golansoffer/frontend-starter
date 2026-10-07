@@ -1,0 +1,11 @@
+node_modules
+dist
+coverage
+playwright-report
+test-results
+.tanstack
+.tools
+pnpm-lock.yaml
+src/routeTree.gen.ts
+# Keep the upstream shadcn source unchanged.
+src/components/ui
