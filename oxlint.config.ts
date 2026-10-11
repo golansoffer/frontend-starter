@@ -64,7 +64,6 @@ export default defineConfig({
   options: {
     typeAware: true,
     denyWarnings: true,
-    maxWarnings: 0,
     reportUnusedDisableDirectives: 'error',
     respectEslintDisableDirectives: false,
   },
@@ -108,6 +107,7 @@ export default defineConfig({
     'no-eval': 'error',
     'no-debugger': 'error',
     'unicorn/no-abusive-eslint-disable': 'error',
+    'unicorn/no-useless-promise-resolve-reject': 'error',
     'import/first': 'error',
     'import/no-duplicates': 'error',
     'sort-imports': [
@@ -169,7 +169,6 @@ export default defineConfig({
       files: ['**/*.{ts,tsx,mts,cts}'],
       env: {
         browser: true,
-        node: true,
       },
       rules: {
         'prefer-rest-params': 'error',
@@ -192,7 +191,6 @@ export default defineConfig({
         'typescript/no-dynamic-delete': 'error',
         'typescript/no-empty-object-type': 'error',
         'typescript/no-explicit-any': 'error',
-        'typescript/no-extra-non-null-assertion': 'error',
         'typescript/no-extraneous-class': 'error',
         'typescript/no-floating-promises': [
           'error',
@@ -211,8 +209,6 @@ export default defineConfig({
         'typescript/no-misused-spread': 'error',
         'typescript/method-signature-style': ['error', 'property'],
         'typescript/no-namespace': 'error',
-        'typescript/no-non-null-asserted-nullish-coalescing': 'error',
-        'typescript/no-non-null-asserted-optional-chain': 'error',
         'typescript/no-non-null-assertion': 'error',
         'typescript/no-redundant-type-constituents': 'error',
         'typescript/no-require-imports': 'error',
@@ -284,7 +280,6 @@ export default defineConfig({
         ],
         'typescript/consistent-type-definitions': ['error', 'type'],
         'typescript/dot-notation': 'error',
-        'typescript/no-confusing-non-null-assertion': 'error',
         'typescript/no-inferrable-types': 'error',
         'typescript/prefer-find': 'error',
         'typescript/prefer-for-of': 'error',
@@ -325,6 +320,18 @@ export default defineConfig({
         ],
         'max-depth': ['error', 3],
         'no-console': 'error',
+      },
+    },
+    {
+      files: [
+        'src/**/*.test.{ts,tsx}',
+        'src/test/**/*.{ts,tsx}',
+        'e2e/**/*.ts',
+        '*.config.ts',
+        'config/**/*.ts',
+      ],
+      env: {
+        node: true,
       },
     },
     {
@@ -517,6 +524,15 @@ export default defineConfig({
           restrictRouterImports(['RouterProvider']),
         ],
       },
+    },
+    {
+      files: [
+        'src/features/export-example/sample-request.ts',
+        'src/features/tasks/tasks-api.ts',
+        'src/features/conversations/conversation-api.ts',
+      ],
+      // Fake requests preserve async return/rejection semantics without real I/O.
+      rules: { 'typescript/require-await': 'off' },
     },
     {
       files: ['src/app/router.tsx'],

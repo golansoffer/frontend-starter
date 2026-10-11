@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "vite",
     "routes:generate": "node scripts/generate-routes.mjs",
-    "typecheck": "pnpm routes:generate && tsc --noEmit",
+    "typecheck": "pnpm routes:generate && tsc -b",
     "build": "pnpm typecheck && vite build",
     "preview": "vite preview",
     "ui:add": "shadcn add",

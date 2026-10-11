@@ -22,18 +22,21 @@ export async function getJson<T>(
   schema: z.ZodType<T>,
   signal: AbortSignal,
 ): Promise<T> {
-  const response = await fetch(url, {
-    signal,
-    headers: { Accept: 'application/json' },
-  }).catch((error: unknown) => {
+  let data: unknown
+  try {
+    const response = await fetch(url, {
+      signal,
+      headers: { Accept: 'application/json' },
+    })
+    if (!response.ok) {
+      throw new HttpError(response.status)
+    }
+    data = await response.json()
+  } catch (error) {
     if (!signal.aborted && error instanceof TypeError) {
       throw new NetworkError(error)
     }
     throw error
-  })
-  if (!response.ok) {
-    throw new HttpError(response.status)
   }
-  const data: unknown = await response.json()
   return schema.parse(data)
 }

@@ -63,6 +63,35 @@ describe('getJson', () => {
     ).rejects.toBeInstanceOf(SyntaxError)
   })
 
+  it('classifies a connection failure while reading the body as a network error', async () => {
+    const error = new TypeError('Connection closed during download')
+    const response = new Response(
+      new ReadableStream({
+        start(controller) {
+          controller.error(error)
+        },
+      }),
+    )
+    vi.stubGlobal('fetch', vi.fn<typeof fetch>().mockResolvedValue(response))
+    await expect(
+      getJson('/profile', schema, new AbortController().signal),
+    ).rejects.toMatchObject({ name: 'NetworkError', cause: error })
+  })
+
+  it('keeps adapter failures outside the retryable network boundary', async () => {
+    const error = new TypeError('Broken adapter')
+    const brokenAdapter = schema.transform(() => {
+      throw error
+    })
+    vi.stubGlobal(
+      'fetch',
+      vi.fn<typeof fetch>().mockResolvedValue(Response.json({ name: 'Ada' })),
+    )
+    await expect(
+      getJson('/profile', brokenAdapter, new AbortController().signal),
+    ).rejects.toBe(error)
+  })
+
   it.each([
     new DOMException('Aborted', 'AbortError'),
     new TypeError('Custom cancellation reason'),

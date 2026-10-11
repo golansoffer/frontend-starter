@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "types": ["vite/client", "node"],
+    "tsBuildInfoFile": "../.tools/tsconfig.tools.tsbuildinfo"
+  },
+  "include": [
+    "../src/**/*.test.ts",
+    "../src/**/*.test.tsx",
+    "../src/test",
+    "../e2e",
+    "../*.config.ts",
+    "./**/*.ts"
+  ]
+}

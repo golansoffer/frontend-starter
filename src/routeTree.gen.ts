@@ -9,16 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ExamplesRouteImport } from './routes/_examples'
-import { Route as AboutRouteImport } from './routes/about'
-import { Route as ExamplesIndexRouteImport } from './routes/_examples.index'
-import { Route as ExamplesProfileRouteImport } from './routes/_examples.profile'
+import { Route as ExamplesRouteRouteImport } from './routes/_examples/route'
+import { Route as AboutRouteRouteImport } from './routes/about/route'
+import { Route as ExamplesIndexRouteImport } from './routes/_examples/index'
+import { Route as ExamplesAsyncButtonRouteRouteImport } from './routes/_examples/async-button/route'
+import { Route as ExamplesConversationsRouteRouteImport } from './routes/_examples/conversations/route'
+import { Route as ExamplesProfileRouteRouteImport } from './routes/_examples/profile/route'
+import { Route as ExamplesTasksRouteRouteImport } from './routes/_examples/tasks/route'
+import { Route as ExamplesConversationsIndexRouteImport } from './routes/_examples/conversations/index'
+import { Route as ExamplesConversationsConversationIdRouteRouteImport } from './routes/_examples/conversations/$conversationId/route'
+import { Route as ExamplesConversationsNewRouteRouteImport } from './routes/_examples/conversations/new/route'
 
-const ExamplesRoute = ExamplesRouteImport.update({
+const ExamplesRouteRoute = ExamplesRouteRouteImport.update({
   id: '/_examples',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AboutRoute = AboutRouteImport.update({
+const AboutRouteRoute = AboutRouteRouteImport.update({
   id: '/about',
   path: '/about',
   getParentRoute: () => rootRouteImport,
@@ -26,43 +32,122 @@ const AboutRoute = AboutRouteImport.update({
 const ExamplesIndexRoute = ExamplesIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => ExamplesRoute,
+  getParentRoute: () => ExamplesRouteRoute,
 } as any)
-const ExamplesProfileRoute = ExamplesProfileRouteImport.update({
+const ExamplesAsyncButtonRouteRoute =
+  ExamplesAsyncButtonRouteRouteImport.update({
+    id: '/async-button',
+    path: '/async-button',
+    getParentRoute: () => ExamplesRouteRoute,
+  } as any)
+const ExamplesConversationsRouteRoute =
+  ExamplesConversationsRouteRouteImport.update({
+    id: '/conversations',
+    path: '/conversations',
+    getParentRoute: () => ExamplesRouteRoute,
+  } as any)
+const ExamplesProfileRouteRoute = ExamplesProfileRouteRouteImport.update({
   id: '/profile',
   path: '/profile',
-  getParentRoute: () => ExamplesRoute,
+  getParentRoute: () => ExamplesRouteRoute,
 } as any)
+const ExamplesTasksRouteRoute = ExamplesTasksRouteRouteImport.update({
+  id: '/tasks',
+  path: '/tasks',
+  getParentRoute: () => ExamplesRouteRoute,
+} as any)
+const ExamplesConversationsIndexRoute =
+  ExamplesConversationsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => ExamplesConversationsRouteRoute,
+  } as any)
+const ExamplesConversationsConversationIdRouteRoute =
+  ExamplesConversationsConversationIdRouteRouteImport.update({
+    id: '/$conversationId',
+    path: '/$conversationId',
+    getParentRoute: () => ExamplesConversationsRouteRoute,
+  } as any)
+const ExamplesConversationsNewRouteRoute =
+  ExamplesConversationsNewRouteRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => ExamplesConversationsRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof ExamplesIndexRoute
-  '/about': typeof AboutRoute
-  '/profile': typeof ExamplesProfileRoute
+  '/about': typeof AboutRouteRoute
+  '/async-button': typeof ExamplesAsyncButtonRouteRoute
+  '/conversations': typeof ExamplesConversationsRouteRouteWithChildren
+  '/profile': typeof ExamplesProfileRouteRoute
+  '/tasks': typeof ExamplesTasksRouteRoute
+  '/conversations/$conversationId': typeof ExamplesConversationsConversationIdRouteRoute
+  '/conversations/new': typeof ExamplesConversationsNewRouteRoute
+  '/conversations/': typeof ExamplesConversationsIndexRoute
 }
 export interface FileRoutesByTo {
-  '/about': typeof AboutRoute
-  '/profile': typeof ExamplesProfileRoute
+  '/about': typeof AboutRouteRoute
+  '/async-button': typeof ExamplesAsyncButtonRouteRoute
+  '/profile': typeof ExamplesProfileRouteRoute
+  '/tasks': typeof ExamplesTasksRouteRoute
   '/': typeof ExamplesIndexRoute
+  '/conversations/$conversationId': typeof ExamplesConversationsConversationIdRouteRoute
+  '/conversations/new': typeof ExamplesConversationsNewRouteRoute
+  '/conversations': typeof ExamplesConversationsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_examples': typeof ExamplesRouteWithChildren
-  '/about': typeof AboutRoute
-  '/_examples/profile': typeof ExamplesProfileRoute
+  '/_examples': typeof ExamplesRouteRouteWithChildren
+  '/about': typeof AboutRouteRoute
+  '/_examples/async-button': typeof ExamplesAsyncButtonRouteRoute
+  '/_examples/conversations': typeof ExamplesConversationsRouteRouteWithChildren
+  '/_examples/profile': typeof ExamplesProfileRouteRoute
+  '/_examples/tasks': typeof ExamplesTasksRouteRoute
   '/_examples/': typeof ExamplesIndexRoute
+  '/_examples/conversations/$conversationId': typeof ExamplesConversationsConversationIdRouteRoute
+  '/_examples/conversations/new': typeof ExamplesConversationsNewRouteRoute
+  '/_examples/conversations/': typeof ExamplesConversationsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about' | '/profile'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/async-button'
+    | '/conversations'
+    | '/profile'
+    | '/tasks'
+    | '/conversations/$conversationId'
+    | '/conversations/new'
+    | '/conversations/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/about' | '/profile' | '/'
+  to:
+    | '/about'
+    | '/async-button'
+    | '/profile'
+    | '/tasks'
+    | '/'
+    | '/conversations/$conversationId'
+    | '/conversations/new'
+    | '/conversations'
   id:
-    '__root__' | '/_examples' | '/about' | '/_examples/profile' | '/_examples/'
+    | '__root__'
+    | '/_examples'
+    | '/about'
+    | '/_examples/async-button'
+    | '/_examples/conversations'
+    | '/_examples/profile'
+    | '/_examples/tasks'
+    | '/_examples/'
+    | '/_examples/conversations/$conversationId'
+    | '/_examples/conversations/new'
+    | '/_examples/conversations/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  ExamplesRoute: typeof ExamplesRouteWithChildren
-  AboutRoute: typeof AboutRoute
+  ExamplesRouteRoute: typeof ExamplesRouteRouteWithChildren
+  AboutRouteRoute: typeof AboutRouteRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -71,14 +156,14 @@ declare module '@tanstack/react-router' {
       id: '/_examples'
       path: ''
       fullPath: '/'
-      preLoaderRoute: typeof ExamplesRouteImport
+      preLoaderRoute: typeof ExamplesRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/about': {
       id: '/about'
       path: '/about'
       fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
+      preLoaderRoute: typeof AboutRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_examples/': {
@@ -86,35 +171,102 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof ExamplesIndexRouteImport
-      parentRoute: typeof ExamplesRoute
+      parentRoute: typeof ExamplesRouteRoute
+    }
+    '/_examples/async-button': {
+      id: '/_examples/async-button'
+      path: '/async-button'
+      fullPath: '/async-button'
+      preLoaderRoute: typeof ExamplesAsyncButtonRouteRouteImport
+      parentRoute: typeof ExamplesRouteRoute
+    }
+    '/_examples/conversations': {
+      id: '/_examples/conversations'
+      path: '/conversations'
+      fullPath: '/conversations'
+      preLoaderRoute: typeof ExamplesConversationsRouteRouteImport
+      parentRoute: typeof ExamplesRouteRoute
     }
     '/_examples/profile': {
       id: '/_examples/profile'
       path: '/profile'
       fullPath: '/profile'
-      preLoaderRoute: typeof ExamplesProfileRouteImport
-      parentRoute: typeof ExamplesRoute
+      preLoaderRoute: typeof ExamplesProfileRouteRouteImport
+      parentRoute: typeof ExamplesRouteRoute
+    }
+    '/_examples/tasks': {
+      id: '/_examples/tasks'
+      path: '/tasks'
+      fullPath: '/tasks'
+      preLoaderRoute: typeof ExamplesTasksRouteRouteImport
+      parentRoute: typeof ExamplesRouteRoute
+    }
+    '/_examples/conversations/': {
+      id: '/_examples/conversations/'
+      path: '/'
+      fullPath: '/conversations/'
+      preLoaderRoute: typeof ExamplesConversationsIndexRouteImport
+      parentRoute: typeof ExamplesConversationsRouteRoute
+    }
+    '/_examples/conversations/$conversationId': {
+      id: '/_examples/conversations/$conversationId'
+      path: '/$conversationId'
+      fullPath: '/conversations/$conversationId'
+      preLoaderRoute: typeof ExamplesConversationsConversationIdRouteRouteImport
+      parentRoute: typeof ExamplesConversationsRouteRoute
+    }
+    '/_examples/conversations/new': {
+      id: '/_examples/conversations/new'
+      path: '/new'
+      fullPath: '/conversations/new'
+      preLoaderRoute: typeof ExamplesConversationsNewRouteRouteImport
+      parentRoute: typeof ExamplesConversationsRouteRoute
     }
   }
 }
 
-interface ExamplesRouteChildren {
-  ExamplesProfileRoute: typeof ExamplesProfileRoute
+interface ExamplesConversationsRouteRouteChildren {
+  ExamplesConversationsConversationIdRouteRoute: typeof ExamplesConversationsConversationIdRouteRoute
+  ExamplesConversationsNewRouteRoute: typeof ExamplesConversationsNewRouteRoute
+  ExamplesConversationsIndexRoute: typeof ExamplesConversationsIndexRoute
+}
+
+const ExamplesConversationsRouteRouteChildren: ExamplesConversationsRouteRouteChildren =
+  {
+    ExamplesConversationsConversationIdRouteRoute:
+      ExamplesConversationsConversationIdRouteRoute,
+    ExamplesConversationsNewRouteRoute: ExamplesConversationsNewRouteRoute,
+    ExamplesConversationsIndexRoute: ExamplesConversationsIndexRoute,
+  }
+
+const ExamplesConversationsRouteRouteWithChildren =
+  ExamplesConversationsRouteRoute._addFileChildren(
+    ExamplesConversationsRouteRouteChildren,
+  )
+
+interface ExamplesRouteRouteChildren {
+  ExamplesAsyncButtonRouteRoute: typeof ExamplesAsyncButtonRouteRoute
+  ExamplesConversationsRouteRoute: typeof ExamplesConversationsRouteRouteWithChildren
+  ExamplesProfileRouteRoute: typeof ExamplesProfileRouteRoute
+  ExamplesTasksRouteRoute: typeof ExamplesTasksRouteRoute
   ExamplesIndexRoute: typeof ExamplesIndexRoute
 }
 
-const ExamplesRouteChildren: ExamplesRouteChildren = {
-  ExamplesProfileRoute: ExamplesProfileRoute,
+const ExamplesRouteRouteChildren: ExamplesRouteRouteChildren = {
+  ExamplesAsyncButtonRouteRoute: ExamplesAsyncButtonRouteRoute,
+  ExamplesConversationsRouteRoute: ExamplesConversationsRouteRouteWithChildren,
+  ExamplesProfileRouteRoute: ExamplesProfileRouteRoute,
+  ExamplesTasksRouteRoute: ExamplesTasksRouteRoute,
   ExamplesIndexRoute: ExamplesIndexRoute,
 }
 
-const ExamplesRouteWithChildren = ExamplesRoute._addFileChildren(
-  ExamplesRouteChildren,
+const ExamplesRouteRouteWithChildren = ExamplesRouteRoute._addFileChildren(
+  ExamplesRouteRouteChildren,
 )
 
 const rootRouteChildren: RootRouteChildren = {
-  ExamplesRoute: ExamplesRouteWithChildren,
-  AboutRoute: AboutRoute,
+  ExamplesRouteRoute: ExamplesRouteRouteWithChildren,
+  AboutRouteRoute: AboutRouteRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

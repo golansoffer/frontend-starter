@@ -6,7 +6,7 @@
     "moduleResolution": "Bundler",
     "moduleDetection": "force",
     "jsx": "react-jsx",
-    "types": ["vite/client", "node"],
+    "types": [],
     "paths": { "@/*": ["./src/*"] },
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
@@ -29,12 +29,9 @@
     "noUncheckedSideEffectImports": true,
     "skipLibCheck": false
   },
-  "include": ["src", "e2e", "*.config.ts"],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "coverage",
-    "playwright-report",
-    "test-results"
+  "files": [],
+  "references": [
+    { "path": "./config/tsconfig.app.json" },
+    { "path": "./config/tsconfig.tools.json" }
   ]
 }

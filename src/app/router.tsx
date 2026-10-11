@@ -13,28 +13,44 @@ export const router = createRouter({
   defaultPreloadStaleTime: 0,
   scrollRestoration: true,
   search: { strict: true },
-  defaultPendingComponent: () => <output>Loading…</output>,
-  defaultErrorComponent: () => (
-    <div role="alert" className="space-y-4">
-      <h1 className="text-2xl font-semibold">Something went wrong</h1>
-      <p>We could not load this page. Please try again.</p>
-      <Button
-        onClick={() => {
-          window.location.reload()
-        }}
-      >
-        Reload page
-      </Button>
-    </div>
-  ),
-  defaultNotFoundComponent: () => (
-    <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">Page not found</h1>
-      <Link to="/" className="underline underline-offset-4">
-        Back to home
-      </Link>
-    </div>
-  ),
+  defaultPendingComponent: () => {
+    const title = 'Loading…'
+    return (
+      <>
+        <title>{title}</title>
+        <output>{title}</output>
+      </>
+    )
+  },
+  defaultErrorComponent: () => {
+    const title = 'Something went wrong'
+    return (
+      <div role="alert" className="space-y-4">
+        <title>{title}</title>
+        <h1 className="text-2xl font-semibold">{title}</h1>
+        <p>We could not load this page. Please try again.</p>
+        <Button
+          onClick={() => {
+            window.location.reload()
+          }}
+        >
+          Reload page
+        </Button>
+      </div>
+    )
+  },
+  defaultNotFoundComponent: () => {
+    const title = 'Page not found'
+    return (
+      <div className="space-y-4">
+        <title>{title}</title>
+        <h1 className="text-2xl font-semibold">{title}</h1>
+        <Link to="/" className="underline underline-offset-4">
+          Back to home
+        </Link>
+      </div>
+    )
+  },
 })
 
 declare module '@tanstack/react-router' {

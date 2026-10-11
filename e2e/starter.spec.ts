@@ -17,6 +17,8 @@ test('loads data and validates the form with the keyboard', async ({
   await expect(
     page.getByRole('heading', { name: 'Profile form', level: 1 }),
   ).toBeVisible()
+  await expect(page).toHaveTitle('Profile form')
+  await expect(page.locator('head title')).toHaveCount(1)
   await page.getByRole('button', { name: 'Validate profile' }).click()
   await expect(
     page.getByRole('textbox', { name: 'Display name' }),
@@ -40,8 +42,11 @@ test('supports typed navigation, direct links, and refresh', async ({
   page,
 }) => {
   await page.goto('/')
+  await expect(page).toHaveTitle('Your next project')
   await page.getByRole('link', { name: 'About', exact: true }).click()
   await expect(page).toHaveURL('/about')
+  await expect(page).toHaveTitle('About this starter')
+  await expect(page.locator('head title')).toHaveCount(1)
   await page.reload()
   await expect(
     page.getByRole('heading', { name: 'About this starter' }),
@@ -58,6 +63,8 @@ test('supports typed navigation, direct links, and refresh', async ({
   await expect(
     page.getByRole('heading', { name: 'Your next project' }),
   ).toBeVisible()
+  await expect(page).toHaveTitle('Your next project')
+  await expect(page.locator('head title')).toHaveCount(1)
 })
 
 test('renders an unknown URL with a way home', async ({ page }) => {
@@ -65,6 +72,8 @@ test('renders an unknown URL with a way home', async ({ page }) => {
   await expect(
     page.getByRole('heading', { name: 'Page not found' }),
   ).toBeVisible()
+  await expect(page).toHaveTitle('Page not found')
+  await expect(page.locator('head title')).toHaveCount(1)
   await page.getByRole('link', { name: 'Back to home' }).click()
   await expect(
     page.getByRole('heading', { name: 'Your next project' }),
@@ -79,6 +88,8 @@ test('rejects malformed server data and allows recovery', async ({ page }) => {
   await expect(
     page.getByRole('heading', { name: 'Something went wrong' }),
   ).toBeVisible()
+  await expect(page).toHaveTitle('Something went wrong')
+  await expect(page.locator('head title')).toHaveCount(1)
   await page.unroute('**/example-project.json')
   await page.getByRole('button', { name: 'Reload page' }).click()
   await expect(

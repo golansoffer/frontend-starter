@@ -10,7 +10,7 @@ import {
   writeFileSync,
 } from 'node:fs'
 import { createRequire } from 'node:module'
-import { dirname, join, relative, resolve } from 'node:path'
+import { dirname, join, relative, resolve, sep } from 'node:path'
 import { after, test } from 'node:test'
 
 import ts from 'typescript'
@@ -89,6 +89,21 @@ const probes = [
   ],
   ['floating.ts', 'Promise.resolve(1)', 'typescript(no-floating-promises)'],
   ['voided.ts', 'void Promise.resolve(1)', 'typescript(no-floating-promises)'],
+  [
+    'redundant-promise.ts',
+    'export async function request() { return Promise.resolve({ value: 1 }) }',
+    'unicorn(no-useless-promise-resolve-reject)',
+  ],
+  [
+    'redundant-rejection.ts',
+    'export const request = async () => Promise.reject(new Error("Failed"))',
+    'unicorn(no-useless-promise-resolve-reject)',
+  ],
+  [
+    'unnecessary-async.ts',
+    'export async function count() { return 1 }',
+    'typescript(require-await)',
+  ],
   [
     'effect.tsx',
     'import { useEffect as synchronize } from "react"; export function Example() { synchronize(() => { document.title = "Example" }, []); return null }',
@@ -244,7 +259,7 @@ for (const [name, source, , directoryIndex = 0] of probes) {
 }
 fixture(
   'valid.ts',
-  'export { Link, createLink, linkOptions } from "@tanstack/react-router"\nexport type { LinkProps, LinkComponent } from "@tanstack/react-router"\nexport type Props = { name: string; onChange: (value: string) => void }\nexport const value = "typed"\nexport const external: unknown = JSON.parse("{}")\nPromise.resolve(value).catch(() => { throw new Error("Failed") })',
+  'export { Link, createLink, linkOptions } from "@tanstack/react-router"\nexport type { LinkProps, LinkComponent } from "@tanstack/react-router"\nexport type Props = { name: string; onChange: (value: string) => void }\nexport const value = "typed"\nexport const external: unknown = JSON.parse("{}")\nexport function request(): Promise<unknown> { return Promise.resolve({ value: 1 }) }\nPromise.resolve(value).catch(() => { throw new Error("Failed") })',
 )
 fixture(
   'route-valid.ts',
@@ -263,7 +278,7 @@ const outsideHelper = fixture(
   directories[5],
 )
 const architectureFixtures = [
-  ['route.ts', 'export { Route } from "@/routes/_examples.index"'],
+  ['route.ts', 'export { Route } from "@/routes/_examples/index"'],
   ['router.ts', 'export { router } from "@/app/router"'],
   ['generated.ts', 'export { routeTree } from "@/routeTree.gen"'],
 ].map(([name, source]) => ({
@@ -446,7 +461,7 @@ await test('only Oxlint is configured as the JavaScript/TypeScript linter', () =
 
 await test('CSS rules reject escalating specificity and allow ordinary CSS', async () => {
   const invalid = await stylelint.lint({
-    code: '#example { color: red !important; }\n.a { .b { .c { .d { .e { color: red; } } } } }',
+    code: '/* stylelint-disable */\n#example { color: red !important; }\n.a { .b { .c { .d { .e { color: red; } } } } }',
     codeFilename: resolve('src/policy-probe.css'),
     configFile: resolve('config/stylelint.config.mjs'),
   })
@@ -483,6 +498,65 @@ await test('application JavaScript and enums cannot bypass repository policies',
     ).join(),
     /instead of an enum/u,
   )
+})
+
+await test('declaration assertions cannot bypass initialization checks', () => {
+  for (const source of [
+    'export let value!: string;',
+    'export class Value { value!: string; }',
+  ]) {
+    assert.match(
+      findPolicyViolations(resolve('src/value.ts'), source).join(),
+      /definite-assignment assertions/u,
+    )
+  }
+  assert.deepEqual(
+    findPolicyViolations(
+      resolve('src/value.ts'),
+      'export const value = "ready"; export class Value { readonly value: string; constructor(value: string) { this.value = value; } }',
+    ),
+    [],
+  )
+})
+
+await test('routes use folders instead of flat names and ignore colocated support files', () => {
+  for (const filename of [
+    'about.tsx',
+    '_examples.profile.tsx',
+    '_examples.profile/route.tsx',
+    '_examples/profile.tsx',
+    '_examples/schema.ts',
+    '_examples/route.test.tsx',
+    'nested/__root.tsx',
+  ]) {
+    assert.match(
+      findPolicyViolations(resolve('src/routes', filename), '').join(),
+      /directory-based routes/u,
+      filename,
+    )
+  }
+  for (const filename of [
+    '__root.tsx',
+    'index.tsx',
+    '_examples/route.tsx',
+    '_examples/index.tsx',
+    '_examples/profile/route.tsx',
+    'projects/$projectId/route.tsx',
+    '(authenticated)/projects/route.tsx',
+    'version[.]json/route.ts',
+    '[.well-known]/route.tsx',
+    'about/route.lazy.tsx',
+    '_examples/index.lazy.tsx',
+    '_examples/-schema.ts',
+    '_examples/-examples.test.tsx',
+    '_examples/-support/schema.ts',
+  ]) {
+    assert.deepEqual(
+      findPolicyViolations(resolve('src/routes', filename), ''),
+      [],
+      filename,
+    )
+  }
 })
 
 await test('state tags require separate union members and reject hidden or optional tags', () => {
@@ -595,17 +669,46 @@ await test('policy parses comments inside blocks and JSX, while allowing strings
   )
 })
 
+function typeScriptProgram(configFile, sources) {
+  const config = ts.getParsedCommandLineOfConfigFile(
+    configFile,
+    {},
+    {
+      ...ts.sys,
+      onUnRecoverableConfigFileDiagnostic: (diagnostic) =>
+        assert.fail(
+          ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'),
+        ),
+    },
+  )
+  assert.deepEqual(config.errors, [])
+  const host = ts.createCompilerHost(config.options)
+  const original = host.getSourceFile.bind(host)
+  host.getSourceFile = (
+    file,
+    languageVersion,
+    onError,
+    shouldCreateNewSourceFile,
+  ) => {
+    const source = sources.get(resolve(file))
+    return source !== undefined
+      ? ts.createSourceFile(file, source, languageVersion, true)
+      : original(file, languageVersion, onError, shouldCreateNewSourceFile)
+  }
+  const projectFiles = config.fileNames.filter(
+    (file) =>
+      !directories.some((directory) =>
+        resolve(file).startsWith(directory + sep),
+      ),
+  )
+  return ts.createProgram(
+    [...projectFiles, ...sources.keys()],
+    config.options,
+    host,
+  )
+}
+
 await test('TypeScript rejects unsafe types and non-erasable syntax', () => {
-  const config = ts.readConfigFile('tsconfig.json', (filename) =>
-    ts.sys.readFile(filename),
-  )
-  assert.equal(config.error, undefined)
-  const parsed = ts.parseJsonConfigFileContent(
-    config.config,
-    ts.sys,
-    process.cwd(),
-  )
-  assert.equal(parsed.errors.length, 0)
   const filename = resolve('src/__type_guard_probe__.ts')
   const cases = [
     ['unchecked index', 'export const fromArray: string = ["value"][1];', 2322],
@@ -665,20 +768,7 @@ await test('TypeScript rejects unsafe types and non-erasable syntax', () => {
       'const sharedName = 1; sharedName.toFixed();',
     ]),
   ])
-  const host = ts.createCompilerHost(parsed.options)
-  const original = host.getSourceFile.bind(host)
-  host.getSourceFile = (
-    file,
-    languageVersion,
-    onError,
-    shouldCreateNewSourceFile,
-  ) => {
-    const source = sources.get(resolve(file))
-    return source !== undefined
-      ? ts.createSourceFile(file, source, languageVersion, true)
-      : original(file, languageVersion, onError, shouldCreateNewSourceFile)
-  }
-  const program = ts.createProgram([...sources.keys()], parsed.options, host)
+  const program = typeScriptProgram('config/tsconfig.app.json', sources)
   const diagnostics = ts.getPreEmitDiagnostics(program)
   for (const [line, [name, , code]] of cases.entries()) {
     assert.ok(
@@ -699,4 +789,45 @@ await test('TypeScript rejects unsafe types and non-erasable syntax', () => {
     [],
     'Files without imports or exports must have independent module scope.',
   )
+})
+
+await test('browser types reject Node globals while tools retain them', () => {
+  const filename = resolve('src/__environment_guard_probe__.ts')
+  const sources = new Map([
+    [
+      filename,
+      [
+        'export const scheduled = setImmediate(() => undefined);',
+        'export const detached = setTimeout(() => undefined, 0).unref();',
+        'export const timer: number = window.setTimeout(() => undefined, 0);',
+      ].join('\n'),
+    ],
+  ])
+  for (const [configFile, expectedCodes] of [
+    ['config/tsconfig.app.json', [2304, 2339]],
+    ['config/tsconfig.tools.json', []],
+  ]) {
+    const program = typeScriptProgram(configFile, sources)
+    const diagnostics = ts
+      .getPreEmitDiagnostics(program)
+      .filter((item) => item.file && resolve(item.file.fileName) === filename)
+    assert.deepEqual(
+      diagnostics.map((item) => item.code),
+      expectedCodes,
+      configFile,
+    )
+    if (configFile === 'config/tsconfig.app.json') {
+      assert.deepEqual(
+        program
+          .getSourceFiles()
+          .filter((file) =>
+            /\/node_modules\/@types\/node\//u.test(
+              file.fileName.replaceAll('\\', '/'),
+            ),
+          ),
+        [],
+        'Application dependencies must not introduce Node globals transitively.',
+      )
+    }
+  }
 })

@@ -20,5 +20,6 @@
     "*.css": "tailwindcss"
   },
   "oxc.configPath": "oxlint.config.ts",
+  "stylelint.validate": ["css", "tailwindcss"],
   "stylelint.configFile": "config/stylelint.config.mjs"
 }

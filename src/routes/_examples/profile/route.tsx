@@ -14,12 +14,14 @@ export const Route = createFileRoute('/_examples/profile')({
 })
 
 function ProfileRoute() {
+  const title = 'Profile form'
   return (
     <article>
+      <title>{title}</title>
       <Card>
         <CardHeader>
           <CardTitle>
-            <h1>Profile form</h1>
+            <h1>{title}</h1>
           </CardTitle>
           <CardDescription>
             <p>Try the validation. This example does not save data.</p>

@@ -1,5 +1,6 @@
 export default {
   extends: ['stylelint-config-standard'],
+  ignoreDisables: true,
   rules: {
     'declaration-no-important': true,
     'selector-max-id': 0,

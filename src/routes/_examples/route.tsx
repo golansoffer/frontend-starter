@@ -8,6 +8,24 @@ function ExampleLayout() {
       <nav aria-label="Examples">
         <ul className="flex flex-wrap gap-6">
           <li>
+            <Link to="/async-button" className="underline underline-offset-4">
+              1. Async button
+            </Link>
+          </li>
+          <li>
+            <Link to="/tasks" className="underline underline-offset-4">
+              2. URL state
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/conversations/new"
+              className="underline underline-offset-4"
+            >
+              3. Conversations
+            </Link>
+          </li>
+          <li>
             <Link
               to="/"
               activeOptions={{ exact: true }}

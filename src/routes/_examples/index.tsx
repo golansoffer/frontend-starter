@@ -13,5 +13,10 @@ export const Route = createFileRoute('/_examples/')({
 
 function ProjectRoute() {
   const props = useProject()
-  return <ProjectPage {...props} />
+  return (
+    <>
+      <title>{props.name}</title>
+      <ProjectPage {...props} />
+    </>
+  )
 }

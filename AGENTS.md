@@ -7,6 +7,7 @@ Speak clearly. Push back when correctness requires it. Keep code, comments, and 
 - React, strict TypeScript, Vite, pnpm, TanStack Router/Query/Form, and Zod. Do not add competing libraries.
 - Use stock shadcn Base UI components and theme. Add with `pnpm ui:add <component>`; never customize `src/components/ui` or theme tokens.
 - Routes compose features; features use shared components and utilities. Business logic belongs in `src/features/<feature>`; follow [config/dependency-cruiser.cjs](config/dependency-cruiser.cjs).
+- Use directory-based routes: folders express nesting, `route.tsx` defines a route/layout, and `index.tsx` its index. Keep `__root.tsx` at the routes root; prefix colocated support files/folders with `-` so the generator ignores them. No flat route filenames.
 - Infer types and use type imports. No `any`, unchecked casts, non-null assertions, enums, or suppression comments. Handle rejected promises; `void` is not error handling.
 - Use `type`, never `interface`, for authored contracts. The sole authored exception is TanStack's required `Register` declaration merging in `src/app/router.tsx`; its generated route declarations remain generator-owned.
 - Keep TypeScript syntax erasable: no enums (including `const enum`), runtime namespaces, or constructor parameter properties. Use literal unions, or `as const` objects when runtime values are needed. Declare callbacks as function properties (`onSave: () => void`), not method signatures, so strict argument checking applies.

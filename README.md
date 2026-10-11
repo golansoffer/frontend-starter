@@ -7,7 +7,7 @@ React, strict TypeScript, TanStack Router/Query/Form, Zod, and stock shadcn Base
 Use this as a GitHub template, or copy without `.git`, `node_modules`, `.tools`, and generated build/test output. Keep dotfiles, the lockfile, `.github`, `.husky`, and the generated route tree.
 
 1. Install the pnpm version in [package.json](package.json)'s `packageManager`. pnpm downloads and uses the project's Node version from [pnpm-workspace.yaml](pnpm-workspace.yaml); your global Node version is unchanged.
-2. Rename the package and `index.html` title. `.env.example` is optional. For a plain folder copy, run `git init` before installing so Git hooks work.
+2. Rename the package; `.env.example` lists optional configuration. Routes own page titles. For a plain folder copy, run `git init` before installing so Git hooks work.
 3. Run:
 
 ```sh
@@ -28,7 +28,15 @@ Open the URL printed by Vite. Before full verification, run `pnpm exec playwrigh
 | `pnpm lint:fix` / `pnpm format` | Mechanical fixes                                                                  |
 | `pnpm ui:add <component>`       | Add stock shadcn components                                                       |
 
-The project and profile features are independent. Nested routes render `/` and `/profile` through the shared layout's `Outlet`. The project hook supplies a controlled view; its response schema adapts API fields before Query caches them. Form owns drafts, and the form only validates—it sends or saves nothing. Remove these examples, their public JSON, and related tests together when replacing them.
+Review the examples in increasing difficulty:
+
+| Route                | Start reading                                                              | Demonstrates                                                                                             |
+| -------------------- | -------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `/async-button`      | [AsyncButton](src/features/export-example/async-button.tsx)                | A controlled state union with an action only in valid states; the hook derives props from a mutation.    |
+| `/tasks`             | [Tasks route](src/routes/_examples/tasks/route.tsx)                        | Validated URL state, private form drafts, and filtered/sorted views derived from one cached dataset.     |
+| `/conversations/new` | [New conversation route](src/routes/_examples/conversations/new/route.tsx) | Route-owned navigation after creation; loaded conversation data and sending have independent lifecycles. |
+
+These examples use small async fake requests and schema adapters. Conversation data resets on reload. `/` and `/profile` retain the basic JSON-read and form-validation examples. Remove example features, routes, assets, and related tests together when starting a product.
 
 ## Checks and limits
 

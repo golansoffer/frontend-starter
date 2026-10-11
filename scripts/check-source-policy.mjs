@@ -11,6 +11,24 @@ export function findPolicyViolations(filename, source) {
   if (path.startsWith('src/') && !['.ts', '.tsx'].includes(extname(path))) {
     violations.push('Application code must be TypeScript (.ts or .tsx).')
   }
+  if (path.startsWith('src/routes/')) {
+    const segments = path.slice('src/routes/'.length).split('/')
+    const filename = segments.at(-1)
+    const ignored = segments.some((segment) => segment.startsWith('-'))
+    const root = segments.length === 1 && /^__root\.tsx?$/u.test(filename)
+    if (
+      !ignored &&
+      !root &&
+      (!/^(?:route|index)(?:\.lazy)?\.tsx?$/u.test(filename) ||
+        segments
+          .slice(0, -1)
+          .some((segment) => /(?<!\[)\.(?!\])/u.test(segment)))
+    ) {
+      violations.push(
+        'Use directory-based routes with route.tsx or index.tsx; prefix support files/folders with -.',
+      )
+    }
+  }
 
   const ast = ts.createSourceFile(
     filename,
@@ -36,6 +54,14 @@ export function findPolicyViolations(filename, source) {
     }
     if (ts.isEnumDeclaration(node)) {
       violations.push('Use a union or an as-const object instead of an enum.')
+    }
+    if (
+      (ts.isVariableDeclaration(node) || ts.isPropertyDeclaration(node)) &&
+      node.exclamationToken
+    ) {
+      violations.push(
+        'Initialize values instead of using definite-assignment assertions.',
+      )
     }
     if (path === 'src/app/router.tsx' && ts.isInterfaceDeclaration(node)) {
       const registration =
