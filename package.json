@@ -67,7 +67,7 @@
     "eslint-plugin-testing-library": "7.16.2",
     "husky": "9.1.7",
     "jsdom": "30.1.2",
-    "knip": "6.39.0",
+    "knip": "6.41.0",
     "oxlint": "1.87.0",
     "oxlint-tsgolint": "7.0.2003",
     "prettier": "3.9.9",
