@@ -28,6 +28,8 @@ Open the URL printed by Vite. Before full verification, run `pnpm exec playwrigh
 | `pnpm lint:fix` / `pnpm format` | Mechanical fixes                                                                  |
 | `pnpm ui:add <component>`       | Add stock shadcn components                                                       |
 
+In Claude Code, `/grill-me` interviews you about a plan before any code is written. It runs the `grilling` skill beside it in [.claude/skills](.claude/skills); keep both.
+
 Review the examples in increasing difficulty:
 
 | Route                | Start reading                                                              | Demonstrates                                                                                             |
